@@ -28,8 +28,21 @@ def impurity(labels):
     
     raise ValueError(f"Unknown method {METHOD}")
 
-# Step 2 - split_dataset (not yet solved)
-# TODO: implement
+# Step 2 - split_dataset
+import numpy as np
+
+def split_dataset(features, labels, feature_index, threshold):
+    # TODO: partition rows into left (feature <= threshold) and right (feature > threshold)
+
+    mask = features[:, feature_index] <= threshold
+    
+    features_left = features[mask]
+    labels_left = labels[mask]
+
+    features_right = features[~mask]
+    labels_right = labels[~mask]
+
+    return features_left, labels_left, features_right, labels_right
 
 # Step 3 - split_score (not yet solved)
 # TODO: implement
