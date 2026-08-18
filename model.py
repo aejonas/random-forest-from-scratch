@@ -58,30 +58,28 @@ def split_score(parent_labels, left_labels, right_labels):
 # Step 4 - best_split
 import numpy as np
 
-NUM_STEPS = 10
-
 def best_split(features, labels, feature_indices):
     # TODO: search feature_indices for the (feature, threshold) that best improves purity.
 
-    result: dict[str, int | float | None] = {}
+    result = {"feature_index": None, "threshold": None, "score": 0.0}
+    score_best = 0.0
 
     for feature_index in feature_indices:
-        t_min = float(np.min(features[:, feature_index]))
-        t_max = float(np.max(features[:, feature_index]))
-        t_range = t_max - t_min
+        unique_features = np.unique(features[:, feature_index])
+        thresholds = (unique_features[:-1] + unique_features[1:]) / 2
 
-        for threshold in np.arange(t_min, t_max, t_range / NUM_STEPS):
+        for threshold in thresholds:
             _, left_labels, _, right_labels = split_dataset(features, labels, feature_index, threshold)
+            
+            if len(left_labels) == 0 or len(right_labels) == 0:
+                continue
+            
             score = split_score(labels, left_labels, right_labels)
 
-            if score > 0:
-                result.setdefault("feature_index", []).append(feature_index)
-                result.setdefault("threshold", []).append(threshold)
-                result.setdefault("score", []).append(score)
-        
-    if not result:
-        return {"feature_index": None, "threshold": None, "score": 0.0}
-
+            if score > score_best:
+                score_best = score
+                result = {"feature_index": feature_index, "threshold": threshold, "score": score}
+                
     return result
 
 # Step 5 - should_stop (not yet solved)
