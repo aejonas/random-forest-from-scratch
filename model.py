@@ -107,8 +107,34 @@ def leaf_prediction(labels):
     labels_unique, counts = np.unique(labels, return_counts=True)
     return int(labels_unique[np.argmax(counts)])
 
-# Step 7 - build_tree (not yet solved)
-# TODO: implement
+# Step 7 - build_tree
+def build_tree(features, labels, max_depth=10, min_samples_split=2, feature_subset=None, depth=0):
+    # TODO: recursively grow a decision tree, returning a nested dict of leaf/internal nodes.
+
+    leaf = {"leaf": True, "prediction": leaf_prediction(labels)}
+
+    if should_stop(labels, depth, max_depth, min_samples_split):
+        return leaf
+
+    feature_indices = range(features.shape[1]) if feature_subset is None else  feature_subset
+    split = best_split(features, labels, list(feature_indices))
+    
+    feature_index = split["feature_index"]
+    threshold = split["threshold"]
+    
+    if feature_index is None or threshold is None:
+        return leaf
+    
+    features_left, labels_left, features_right, labels_right = split_dataset(features, labels, feature_index, threshold)
+
+    if len(features_left) == 0 or len(features_right) == 0:
+        return leaf
+
+    depth += 1
+    node_left = build_tree(features_left, labels_left, feature_subset=feature_subset, depth=depth)
+    node_right = build_tree(features_right, labels_right, feature_subset=feature_subset, depth=depth)
+
+    return {"leaf": False, "feature_index": feature_index, "threshold": threshold, "left":  node_left, "right": node_right}
 
 # Step 8 - predict_example_tree (not yet solved)
 # TODO: implement
